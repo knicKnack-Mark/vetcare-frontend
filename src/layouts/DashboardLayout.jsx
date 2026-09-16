@@ -1,5 +1,8 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, PawPrint, Users, Calendar, Syringe, Package, Receipt, BarChart3, LogOut } from 'lucide-react';
+import {
+  LayoutDashboard, PawPrint, Users, Calendar, Syringe,
+  Package, Receipt, BarChart3, LogOut,
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const navItems = [
@@ -23,44 +26,57 @@ const DashboardLayout = () => {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
-      <aside style={{ width: '220px', background: '#1e293b', color: 'white', padding: '1rem', display: 'flex', flexDirection: 'column' }}>
-        <h2 style={{ marginBottom: '2rem' }}>🐾 VetCare</h2>
-        <nav style={{ flex: 1 }}>
+    <div className="flex min-h-screen bg-base-200">
+      {/* Sidebar */}
+      <aside className="w-60 bg-neutral text-neutral-content flex flex-col p-4">
+        <div className="flex items-center gap-2 mb-8 px-2">
+          <PawPrint size={24} />
+          <span className="text-xl font-bold">VetCare</span>
+        </div>
+
+        <ul className="menu flex-1 gap-1">
           {navItems.map(({ to, label, icon: Icon }) => (
-            <NavLink
-              key={to}
-              to={to}
-              style={({ isActive }) => ({
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.6rem 0.8rem',
-                borderRadius: '6px',
-                color: 'white',
-                textDecoration: 'none',
-                marginBottom: '0.3rem',
-                background: isActive ? '#334155' : 'transparent',
-              })}
-            >
-              <Icon size={18} />
-              {label}
-            </NavLink>
+            <li key={to}>
+              <NavLink
+                to={to}
+                end={to === '/'}
+                className={({ isActive }) =>
+                  isActive ? 'active flex items-center gap-2' : 'flex items-center gap-2'
+                }
+              >
+                <Icon size={18} />
+                {label}
+              </NavLink>
+            </li>
           ))}
-        </nav>
-        <button
-          onClick={handleLogout}
-          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', padding: '0.6rem 0.8rem' }}
-        >
+        </ul>
+
+        <button onClick={handleLogout} className="btn btn-ghost justify-start gap-2 mt-2 text-neutral-content">
           <LogOut size={18} /> Logout
         </button>
       </aside>
-      <main className="flex-1 p-6 max-w-[1400px] mx-auto w-full">
-        <div style={{ marginBottom: '1rem', textAlign: 'right' }}>
-          Hello, <strong>{user?.name}</strong> ({user?.role})
-        </div>
-        <Outlet />
-      </main>
+
+      {/* Main content */}
+      <div className="flex-1 flex flex-col">
+        <header className="navbar bg-base-100 border-b border-base-300 px-6">
+          <div className="flex-1" />
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <p className="font-semibold text-sm leading-none">{user?.name}</p>
+              <p className="text-xs opacity-60">{user?.role}</p>
+            </div>
+            <div className="avatar placeholder">
+              <div className="bg-primary text-primary-content rounded-full w-9">
+                <span className="text-sm">{user?.name?.[0]?.toUpperCase()}</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main className="flex-1 p-6 max-w-[1400px] mx-auto w-full">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 };
