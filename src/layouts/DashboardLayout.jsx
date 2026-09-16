@@ -55,7 +55,7 @@ const DashboardLayout = () => {
           <LogOut size={18} /> Logout
         </button>
       </aside>
-      <main style={{ flex: 1, background: '#f5f7fa', padding: '1.5rem' }}>
+      <main className="flex-1 p-6 max-w-[1400px] mx-auto w-full">
         <div style={{ marginBottom: '1rem', textAlign: 'right' }}>
           Hello, <strong>{user?.name}</strong> ({user?.role})
         </div>
