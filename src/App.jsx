@@ -3,6 +3,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import PetsPage from './pages/pets/PetsPage';
+import PetCreatePage from './pages/pets/PetCreatePage';
+import PetProfilePage from './pages/pets/PetProfilePage';
 import DashboardLayout from './layouts/DashboardLayout';
 
 const ProtectedRoute = ({ children }) => {
@@ -26,6 +28,8 @@ function AppRoutes() {
       >
         <Route index element={<Dashboard />} />
         <Route path="pets" element={<PetsPage />} />
+        <Route path="pets/create" element={<PetCreatePage />} />
+        <Route path="pets/:id" element={<PetProfilePage />} />
       </Route>
     </Routes>
   );
