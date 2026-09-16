@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import PetsPage from './pages/pets/PetsPage';
 import DashboardLayout from './layouts/DashboardLayout';
 
 const ProtectedRoute = ({ children }) => {
@@ -24,7 +25,7 @@ function AppRoutes() {
         }
       >
         <Route index element={<Dashboard />} />
-        {/* more nested routes (pets, owners, etc.) go here later */}
+        <Route path="pets" element={<PetsPage />} />
       </Route>
     </Routes>
   );
