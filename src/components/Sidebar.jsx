@@ -4,7 +4,7 @@ import { navItems } from '../config/navigation';
 
 const Sidebar = ({ onLogout }) => {
   return (
-    <aside className="w-60 bg-slate-800 text-slate-100 flex flex-col p-4">
+    <aside className="w-60 h-screen sticky top-0 overflow-hidden bg-slate-800 text-slate-100 flex flex-col p-4">
       <div className="flex items-center gap-2 mb-8 px-2">
         <PawPrint size={24} className="text-primary" />
         <span className="text-xl font-bold">VetCare</span>
