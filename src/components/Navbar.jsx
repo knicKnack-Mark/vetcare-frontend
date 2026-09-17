@@ -1,6 +1,6 @@
 const Navbar = ({ user }) => {
   return (
-    <header className="navbar bg-base-100 border-b border-base-300 px-6">
+    <header className="navbar bg-base-100 border-b border-base-300 px-6 sticky top-0 z-10">
       <div className="flex-1" />
       <div className="flex items-center gap-3">
         <div className="text-right">
