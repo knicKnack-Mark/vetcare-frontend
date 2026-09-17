@@ -6,7 +6,7 @@ import PetsPage from './pages/pets/PetsPage';
 import PetCreatePage from './pages/pets/PetCreatePage';
 import PetProfilePage from './pages/pets/PetProfilePage';
 import DashboardLayout from './layouts/DashboardLayout';
-
+import OwnersPage from './pages/owners/OwnersPage';
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) return <p>Loading...</p>;
@@ -30,6 +30,7 @@ function AppRoutes() {
         <Route path="pets" element={<PetsPage />} />
         <Route path="pets/create" element={<PetCreatePage />} />
         <Route path="pets/:id" element={<PetProfilePage />} />
+        <Route path="owners" element={<OwnersPage />} />
       </Route>
     </Routes>
   );
