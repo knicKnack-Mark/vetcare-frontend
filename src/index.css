@@ -9,3 +9,9 @@
 .animate-in {
   animation: fadeIn 0.4s ease-out;
 }
+
+@media print {
+  .print\:hidden { display: none !important; }
+  .print\:block { display: block !important; }
+  aside, header { display: none !important; }
+}
