@@ -1,18 +1,29 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Pencil, Plus, PawPrint } from 'lucide-react';
+import { Pencil, Plus, PawPrint, CalendarDays, Syringe } from 'lucide-react';
 import { ownerService } from '../../services/ownerService';
+import api from '../../services/api';
 
 const OwnerProfilePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
+  const [appointments, setAppointments] = useState([]);
+  const [vaccinations, setVaccinations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    ownerService.getOwnerById(id)
-      .then((res) => setData(res.data))
+    Promise.all([
+      ownerService.getOwnerById(id),
+      api.get(`/owners/${id}/appointments`).then((r) => r.data).catch(() => ({ data: { appointments: [] } })),
+      api.get(`/owners/${id}/vaccinations`).then((r) => r.data).catch(() => ({ data: { vaccinations: [] } })),
+    ])
+      .then(([ownerRes, apptRes, vacRes]) => {
+        setData(ownerRes.data);
+        setAppointments(apptRes.data.appointments || []);
+        setVaccinations(vacRes.data.vaccinations || []);
+      })
       .catch((err) => setError(err.response?.data?.message || 'Failed to load owner'))
       .finally(() => setLoading(false));
   }, [id]);
@@ -27,6 +38,11 @@ const OwnerProfilePage = () => {
     const years = (Date.now() - new Date(birthDate).getTime()) / (1000 * 60 * 60 * 24 * 365.25);
     return years < 1 ? `${Math.round(years * 12)}mo` : `${Math.floor(years)}y`;
   };
+
+  const completedAppointments = appointments.filter((a) => a.status === 'completed').length;
+  const lastVisit = appointments
+    .filter((a) => a.status === 'completed')
+    .sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.date;
 
   return (
     <div className="space-y-6">
@@ -49,8 +65,8 @@ const OwnerProfilePage = () => {
         {[
           { label: 'Total Pets', value: summary.totalPets },
           { label: 'Active Pets', value: summary.activePets },
-          { label: 'Total Appointments', value: summary.totalAppointments ?? 0 },
-          { label: 'Last Visit', value: summary.lastVisit || 'No visit yet' },
+          { label: 'Total Appointments', value: appointments.length },
+          { label: 'Last Visit', value: lastVisit ? new Date(lastVisit).toLocaleDateString() : 'No visit yet' },
         ].map((c) => (
           <div key={c.label} className="card bg-base-100 shadow-sm">
             <div className="card-body p-4">
@@ -66,7 +82,7 @@ const OwnerProfilePage = () => {
           <div className="card-body">
             <div className="flex items-center justify-between">
               <h2 className="card-title text-base flex items-center gap-2"><PawPrint size={18} /> Pets</h2>
-              <button className="btn btn-ghost btn-xs gap-1"><Plus size={14} /> Add Pet</button>
+              <button className="btn btn-ghost btn-xs gap-1" onClick={() => navigate('/pets/create')}><Plus size={14} /> Add Pet</button>
             </div>
             {pets.length === 0 ? (
               <p className="text-sm opacity-60 py-4 text-center">No pets registered yet.</p>
@@ -116,6 +132,58 @@ const OwnerProfilePage = () => {
                 <h2 className="card-title text-base">Notes</h2>
                 <p className="text-sm mt-2">{owner.notes}</p>
               </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="card bg-base-100 shadow-sm">
+        <div className="card-body">
+          <h2 className="card-title text-base flex items-center gap-2"><CalendarDays size={18} /> Appointment History</h2>
+          {appointments.length === 0 ? (
+            <p className="text-sm opacity-60 py-4 text-center">No appointments yet.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="table table-sm">
+                <thead><tr className="text-xs opacity-60"><th>Date</th><th>Pet</th><th>Type</th><th>Status</th><th></th></tr></thead>
+                <tbody>
+                  {appointments.map((a) => (
+                    <tr key={a._id} className="hover">
+                      <td className="text-sm">{new Date(a.date).toLocaleDateString()}</td>
+                      <td className="text-sm">{a.pet?.name}</td>
+                      <td className="text-sm">{a.appointmentType}</td>
+                      <td><span className="badge badge-sm">{a.status}</span></td>
+                      <td><button className="btn btn-ghost btn-xs" onClick={() => navigate(`/appointments/${a._id}`)}>View</button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="card bg-base-100 shadow-sm">
+        <div className="card-body">
+          <h2 className="card-title text-base flex items-center gap-2"><Syringe size={18} /> Vaccination History</h2>
+          {vaccinations.length === 0 ? (
+            <p className="text-sm opacity-60 py-4 text-center">No vaccination records yet.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="table table-sm">
+                <thead><tr className="text-xs opacity-60"><th>Date</th><th>Pet</th><th>Vaccine</th><th>Next Due</th><th></th></tr></thead>
+                <tbody>
+                  {vaccinations.map((v) => (
+                    <tr key={v._id} className="hover">
+                      <td className="text-sm">{new Date(v.administrationDate).toLocaleDateString()}</td>
+                      <td className="text-sm">{v.pet?.name}</td>
+                      <td className="text-sm">{v.vaccineName}</td>
+                      <td className="text-sm">{v.nextDueDate ? new Date(v.nextDueDate).toLocaleDateString() : '—'}</td>
+                      <td><button className="btn btn-ghost btn-xs" onClick={() => navigate(`/vaccinations/${v._id}`)}>View</button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
