@@ -18,6 +18,12 @@ import AppointmentEditPage from './pages/appointments/AppointmentEditPage';
 import VaccinationsPage from './pages/vaccinations/VaccinationsPage';
 import VaccinationCreatePage from './pages/vaccinations/VaccinationCreatePage';
 import VaccinationProfilePage from './pages/vaccinations/VaccinationProfilePage';
+import VaccinationEditPage from './pages/vaccinations/VaccinationEditPage';
+import VaccinationUpcomingPage from './pages/vaccinations/VaccinationUpcomingPage';
+import VaccinationOverduePage from './pages/vaccinations/VaccinationOverduePage';
+import DewormingsPage from './pages/dewormings/DewormingsPage';
+import DewormingCreatePage from './pages/dewormings/DewormingCreatePage';
+import DewormingProfilePage from './pages/dewormings/DewormingProfilePage';
 
 import DashboardLayout from './layouts/DashboardLayout';
 
@@ -54,7 +60,13 @@ function AppRoutes() {
         <Route path="vaccinations/create" element={<VaccinationCreatePage />} />
         <Route path="vaccinations/:id" element={<VaccinationProfilePage />} />
 
-        
+        <Route path="vaccinations/:id/edit" element={<VaccinationEditPage />} />
+        <Route path="vaccinations/upcoming" element={<VaccinationUpcomingPage />} />
+        <Route path="vaccinations/overdue" element={<VaccinationOverduePage />} />
+
+        <Route path="dewormings" element={<DewormingsPage />} />
+        <Route path="dewormings/create" element={<DewormingCreatePage />} />
+        <Route path="dewormings/:id" element={<DewormingProfilePage />} />
 
       </Route>
     </Routes>
