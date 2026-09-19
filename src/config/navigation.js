@@ -12,4 +12,5 @@ export const navItems = [
   { to: '/inventory', label: 'Inventory', icon: Package },
   { to: '/billing', label: 'Billing', icon: Receipt },
   { to: '/reports', label: 'Reports', icon: BarChart3 },
+  { to: '/dewormings', label: 'Deworming', icon: Syringe },
 ];
