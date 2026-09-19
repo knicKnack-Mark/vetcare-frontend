@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import PetSelector from './PetSelector';
-
+import VeterinarianSelector from '../VeterinarianSelector';
 const APPOINTMENT_TYPES = ['Checkup', 'Vaccination', 'Deworming', 'Anti-Rabies', 'Follow-up', 'Consultation', 'Surgery', 'Laboratory', 'Grooming', 'Emergency', 'Other'];
 
 const emptyForm = {
@@ -97,6 +97,9 @@ const AppointmentForm = ({ initialData, onSubmit, submitLabel = 'Schedule Appoin
                 <option value="emergency">Emergency</option>
               </select>
             </div>
+
+            <VeterinarianSelector value={form.veterinarian} onChange={(v) => update('veterinarian', v)} />
+
             <div>
               <label className="label-text text-sm">Start Time *</label>
               <input type="time" className={`input input-bordered w-full ${errors.startTime ? 'input-error' : ''}`} value={form.startTime} onChange={(e) => update('startTime', e.target.value)} />
