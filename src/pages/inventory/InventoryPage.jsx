@@ -3,6 +3,8 @@ import { Plus, PackagePlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { inventoryService } from '../../services/inventoryService';
 import { StockStatusBadge } from '../../components/inventory/StockBadges';
+import InventoryAlerts from '../../components/inventory/InventoryAlerts';
+
 
 const InventoryPage = () => {
   const navigate = useNavigate();
@@ -11,12 +13,21 @@ const InventoryPage = () => {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [loading, setLoading] = useState(true);
-
+  const [lowStockItems, setLowStockItems] = useState([]);
+  const [expiringItems, setExpiringItems] = useState([]);
+  const [expiredItems, setExpiredItems] = useState([]);
   const load = () => {
     setLoading(true);
-    Promise.all([inventoryService.getAll({ search: search || undefined, category: category || undefined, limit: 50 }), inventoryService.getSummary()])
-      .then(([listRes, sumRes]) => { setItems(listRes.data); setSummary(sumRes.data); })
-      .finally(() => setLoading(false));
+      Promise.all([
+        inventoryService.getAll({ search: search || undefined, category: category || undefined, limit: 50 }),
+        inventoryService.getSummary(),
+        inventoryService.getLowStock(),
+        inventoryService.getExpiring(30),
+        inventoryService.getExpired(),
+      ]).then(([listRes, sumRes, lowRes, expiringRes, expiredRes]) => {
+        setItems(listRes.data); setSummary(sumRes.data);
+        setLowStockItems(lowRes.data); setExpiringItems(expiringRes.data); setExpiredItems(expiredRes.data);
+      }).finally(() => setLoading(false));
   };
 
   useEffect(() => { load(); }, [search, category]);
@@ -26,6 +37,11 @@ const InventoryPage = () => {
       <div className="flex items-center justify-between">
         <div><h1 className="text-2xl font-bold">Inventory</h1><p className="text-sm opacity-60">Manage medicines, vaccines, and clinic supplies.</p></div>
         <div className="flex gap-2">
+          <div className="tabs tabs-boxed w-fit">
+            <a className="tab tab-active">All Items</a>
+            <a className="tab" onClick={() => navigate('/inventory/expiring')}>Expiring</a>
+            <a className="tab" onClick={() => navigate('/inventory/expired')}>Expired</a>
+          </div>
           <button className="btn btn-outline gap-2" onClick={() => navigate('/inventory/create')}><Plus size={16} /> Add Item</button>
         </div>
       </div>
@@ -81,6 +97,7 @@ const InventoryPage = () => {
           </table>
         )}
       </div></div>
+      <InventoryAlerts lowStockItems={lowStockItems} expiringItems={expiringItems} expiredItems={expiredItems} />
     </div>
   );
 };
