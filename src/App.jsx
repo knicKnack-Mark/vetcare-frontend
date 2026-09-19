@@ -15,6 +15,9 @@ import AppointmentsPage from './pages/appointments/AppointmentsPage';
 import AppointmentCreatePage from './pages/appointments/AppointmentCreatePage';
 import AppointmentProfilePage from './pages/appointments/AppointmentProfilePage';
 import AppointmentEditPage from './pages/appointments/AppointmentEditPage';
+import VaccinationsPage from './pages/vaccinations/VaccinationsPage';
+import VaccinationCreatePage from './pages/vaccinations/VaccinationCreatePage';
+import VaccinationProfilePage from './pages/vaccinations/VaccinationProfilePage';
 
 import DashboardLayout from './layouts/DashboardLayout';
 
@@ -47,6 +50,12 @@ function AppRoutes() {
         <Route path="appointments/:id" element={<AppointmentProfilePage />} />
         <Route path="appointments/:id/edit" element={<AppointmentEditPage />} />
         
+        <Route path="vaccinations" element={<VaccinationsPage />} />
+        <Route path="vaccinations/create" element={<VaccinationCreatePage />} />
+        <Route path="vaccinations/:id" element={<VaccinationProfilePage />} />
+
+        
+
       </Route>
     </Routes>
   );
