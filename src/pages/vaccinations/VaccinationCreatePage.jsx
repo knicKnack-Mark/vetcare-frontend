@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import PetSelector from '../../components/appointments/PetSelector';
+import { inventoryService } from '../../services/inventoryService';
 import { vaccinationService } from '../../services/vaccinationService';
 
 const VACCINE_TYPES = ['Core Vaccine', 'Non-Core Vaccine', 'Puppy Vaccine', 'Kitten Vaccine', 'Annual Booster', 'Rabies', 'Other'];
@@ -12,12 +13,17 @@ const REACTIONS = ['None', 'Mild swelling', 'Mild fever', 'Lethargy', 'Vomiting'
 const VaccinationCreatePage = () => {
   const navigate = useNavigate();
   const [petId, setPetId] = useState('');
+  const [inventoryItems, setInventoryItems] = useState([]);
   const [form, setForm] = useState({
     vaccineType: 'Core Vaccine', vaccineName: '5-in-1', manufacturer: '', batchNumber: '', lotNumber: '', expirationDate: '',
-    administrationDate: '', nextDueDate: '', dose: '', route: 'Subcutaneous', administrationSite: '', reaction: 'None', notes: '',
+    administrationDate: '', nextDueDate: '', dose: '', route: 'Subcutaneous', administrationSite: '', reaction: 'None', notes: '', inventoryItem: '',
   });
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    inventoryService.getAll({ category: 'Vaccines', limit: 100 }).then((res) => setInventoryItems(res.data));
+  }, []);
 
   const update = (f, v) => setForm((s) => ({ ...s, [f]: v }));
 
@@ -68,6 +74,11 @@ const VaccinationCreatePage = () => {
           <div><label className="label-text text-sm">Batch Number</label><input className="input input-bordered w-full" value={form.batchNumber} onChange={(e) => update('batchNumber', e.target.value)} /></div>
           <div><label className="label-text text-sm">Lot Number</label><input className="input input-bordered w-full" value={form.lotNumber} onChange={(e) => update('lotNumber', e.target.value)} /></div>
           <div><label className="label-text text-sm">Expiration Date</label><input type="date" className="input input-bordered w-full" value={form.expirationDate} onChange={(e) => update('expirationDate', e.target.value)} /></div>
+          <div><label className="label-text text-sm">Deduct from Inventory (optional)</label>
+            <select className="select select-bordered w-full" value={form.inventoryItem} onChange={(e) => update('inventoryItem', e.target.value)}>
+              <option value="">Don't deduct inventory</option>
+              {inventoryItems.map((i) => <option key={i._id} value={i._id}>{i.name} ({i.quantityRemaining} {i.unit} left)</option>)}
+            </select></div>
         </div>
       </div></div>
 

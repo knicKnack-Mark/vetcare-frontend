@@ -35,8 +35,10 @@ const InventoryProfilePage = () => {
         <div className="flex items-center gap-3">
           <button className="btn btn-ghost btn-sm btn-square" onClick={() => navigate('/inventory')}><ArrowLeft size={18} /></button>
           <div><h1 className="text-2xl font-bold">{item.name}</h1><p className="text-xs opacity-60 font-mono">{item.itemCode}</p></div>
+          
         </div>
         <div className="flex gap-2">
+          <button className="btn btn-sm btn-outline" onClick={() => navigate(`/inventory/${id}/edit`)}>Edit</button>
           <button className="btn btn-sm btn-outline gap-1" onClick={() => setModal('in')}><PackagePlus size={14} /> Stock In</button>
           <button className="btn btn-sm btn-outline gap-1" onClick={() => setModal('out')}><PackageMinus size={14} /> Stock Out</button>
           <button className="btn btn-sm btn-outline gap-1" onClick={() => setModal('adjust')}><Settings2 size={14} /> Adjust</button>
