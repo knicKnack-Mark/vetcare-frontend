@@ -2,17 +2,27 @@ import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useOwners } from '../../hooks/useOwners';
-import OwnerSearch from './OwnerSearch';
-import OwnerTable from './OwnerTable';
+import OwnerSearch from '../../components/owners/OwnerSearch';
+import OwnerFilters from '../../components/owners/OwnerFilters';
+import OwnerTable from '../../components/owners/OwnerTable';
+import Pagination from '../../components/Pagination';
 
 const OwnersPage = () => {
   const navigate = useNavigate();
-  const { owners, loading, error, search, setSearch, statusFilter, setStatusFilter } = useOwners();
+  const {
+    owners, pagination, loading, error,
+    search, setSearch,
+    statusFilter, setStatusFilter,
+    municipality, setMunicipality,
+    province, setProvince,
+    contactMethod, setContactMethod,
+    sortBy, sortOrder, toggleSort,
+    page, setPage, toggleStatus, refetch, resetFilters,
+  } = useOwners();
   const [confirmOwner, setConfirmOwner] = useState(null);
 
-  const handleToggleStatus = (owner) => setConfirmOwner(owner);
-  const confirmToggle = () => {
-    // wire up PATCH /api/owners/:id/status here
+  const handleConfirm = async () => {
+    await toggleStatus(confirmOwner);
     setConfirmOwner(null);
   };
 
@@ -30,16 +40,30 @@ const OwnersPage = () => {
 
       <div className="card bg-base-100 shadow-sm">
         <div className="card-body">
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div className="flex flex-col gap-3 mb-4">
             <OwnerSearch value={search} onChange={setSearch} />
-            <select className="select select-bordered select-sm" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="all">All</option>
-            </select>
+            <OwnerFilters
+              statusFilter={statusFilter} setStatusFilter={setStatusFilter}
+              municipality={municipality} setMunicipality={setMunicipality}
+              province={province} setProvince={setProvince}
+              contactMethod={contactMethod} setContactMethod={setContactMethod}
+              onReset={resetFilters}
+            />
           </div>
 
-          <OwnerTable owners={owners} loading={loading} error={error} onToggleStatus={handleToggleStatus} />
+          <OwnerTable
+            owners={owners} loading={loading} error={error}
+            onToggleStatus={setConfirmOwner} onRetry={refetch}
+            sortBy={sortBy} sortOrder={sortOrder} onSort={toggleSort}
+          />
+
+          <Pagination
+            page={page}
+            totalPages={pagination.totalPages}
+            total={pagination.total}
+            limit={pagination.limit}
+            onPageChange={setPage}
+          />
         </div>
       </div>
 
@@ -51,11 +75,14 @@ const OwnersPage = () => {
             </h3>
             <p className="py-4 text-sm">
               Are you sure you want to {confirmOwner.status === 'active' ? 'deactivate' : 'reactivate'}{' '}
-              <strong>{confirmOwner.firstName} {confirmOwner.lastName}</strong>? Their historical records will be preserved.
+              <strong>{confirmOwner.firstName} {confirmOwner.lastName}</strong>?
+              {confirmOwner.petCount > 0 && confirmOwner.status === 'active' && (
+                <> This owner has <strong>{confirmOwner.petCount}</strong> pet record(s), which will be preserved.</>
+              )}
             </p>
             <div className="modal-action">
               <button className="btn" onClick={() => setConfirmOwner(null)}>Cancel</button>
-              <button className="btn btn-error" onClick={confirmToggle}>Confirm</button>
+              <button className="btn btn-error" onClick={handleConfirm}>Confirm</button>
             </div>
           </div>
         </div>

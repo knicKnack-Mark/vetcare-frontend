@@ -1,89 +1,66 @@
-import { useState, useMemo } from 'react';
-const seedPets = [
-  { id: 'PET-000001', name: 'Max', type: 'Dog', breed: 'Golden Retriever', sex: 'Male', birthDate: '2023-05-10', furparent: { name: 'Juan Dela Cruz', contact: '09171234567' }, vaccinationStatus: 'up_to_date', dewormingStatus: 'due_soon', lastVisit: '2026-09-10', status: 'active' },
-  { id: 'PET-000002', name: 'Luna', type: 'Cat', breed: 'Persian', sex: 'Female', birthDate: '2024-02-14', furparent: { name: 'Maria Santos', contact: '09181234567' }, vaccinationStatus: 'overdue', dewormingStatus: 'up_to_date', lastVisit: '2026-08-22', status: 'active' },
-  { id: 'PET-000003', name: 'Bruno', type: 'Dog', breed: 'Poodle', sex: 'Male', birthDate: '2021-11-01', furparent: { name: 'Pedro Reyes', contact: '09201234567' }, vaccinationStatus: 'up_to_date', dewormingStatus: 'up_to_date', lastVisit: '2026-09-01', status: 'active' },
-    { id: 'PET-000004', name: 'Coco', type: 'Dog', breed: 'Shih Tzu', sex: 'Female', birthDate: '2022-06-20', furparent: { name: 'Ana Reyes', contact: '09211234567' }, vaccinationStatus: 'due_soon', dewormingStatus: 'overdue', lastVisit: null, status: 'active' },
-  { id: 'PET-000005', name: 'Mochi', type: 'Cat', breed: 'Siamese', sex: 'Male', birthDate: '2023-09-05', furparent: { name: 'Juan Dela Cruz', contact: '09171234567' }, vaccinationStatus: 'up_to_date', dewormingStatus: 'up_to_date', medicalStatus: 'recovered', antiRabiesStatus: 'up_to_date', lastVisit: '2026-09-14', status: 'archived' },
-];
-
-const dummyPets = Array.from({ length: 248 }, (_, index) => {
-  const seed = seedPets[index % seedPets.length];
-  return {
-    ...seed,
-    id: `PET-${String(index + 1).padStart(6, '0')}`,
-    name: index < seedPets.length ? seed.name : `${seed.name} ${index + 1}`,
-    status: 'active',
-    medicalStatus: seed.medicalStatus || (index % 9 === 0 ? 'under_treatment' : 'healthy'),
-    antiRabiesStatus: seed.antiRabiesStatus || (index % 7 === 0 ? 'due_soon' : 'up_to_date'),
-  };
-});
-
-const calculateAge = (birthDate) => {
-  const diff = Date.now() - new Date(birthDate).getTime();
-  const years = diff / (1000 * 60 * 60 * 24 * 365.25);
-  return years < 1 ? `${Math.round(years * 12)}mo` : `${Math.floor(years)}y`;
-};
+import { useState, useEffect, useCallback } from 'react';
+import { petService } from '../services/petService';
+import { useDebounce } from './useDebounce';
+import toast from 'react-hot-toast';
 
 export const usePets = () => {
+  const [pets, setPets] = useState([]);
+  const [stats, setStats] = useState({ total: 0, dogs: 0, cats: 0, vaccineDue: 0, dewormDue: 0 });
+  const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 1 });
+
   const [search, setSearch] = useState('');
-  const [typeFilter, setTypeFilter] = useState('All Types');
-  const [sexFilter, setSexFilter] = useState('Gender');
-  const [breedFilter, setBreedFilter] = useState('All Breeds');
-  const [medicalStatusFilter, setMedicalStatusFilter] = useState('All Medical Statuses');
-  const [statusFilter, setStatusFilter] = useState('Active');
+  const [petType, setPetType] = useState('All Types');
+  const [breed, setBreed] = useState('');
+  const [sex, setSex] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('active');
   const [page, setPage] = useState(1);
-  const pageSize = 20;
-  const [loading] = useState(false);
-  const [error] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const filtered = useMemo(() => {
-    return dummyPets.filter((pet) => {
-      const matchesSearch =
-        !search ||
-        pet.name.toLowerCase().includes(search.toLowerCase()) ||
-        pet.id.toLowerCase().includes(search.toLowerCase()) ||
-        pet.furparent.name.toLowerCase().includes(search.toLowerCase()) ||
-        pet.furparent.contact.includes(search);
+  const debouncedSearch = useDebounce(search, 400);
 
-      const matchesType = typeFilter === 'All Types' || pet.type === typeFilter;
-      const matchesSex = sexFilter === 'Gender' || pet.sex === sexFilter;
-      const matchesBreed = breedFilter === 'All Breeds' || pet.breed === breedFilter;
-      const matchesMedicalStatus = medicalStatusFilter === 'All Medical Statuses' || pet.medicalStatus === medicalStatusFilter;
-      const matchesStatus =
-        statusFilter === 'All' ||
-        (statusFilter === 'Active' && pet.status === 'active') ||
-        (statusFilter === 'Archived' && pet.status === 'archived');
+  const fetchPets = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await petService.getPets({
+        page, limit: 20,
+        search: debouncedSearch || undefined,
+        petType: petType === 'All Types' ? undefined : petType,
+        breed: breed || undefined,
+        sex: sex === 'All' ? undefined : sex,
+        status: statusFilter === 'All' ? 'all' : statusFilter.toLowerCase(),
+      });
+      setPets(res.data.pets);
+      setStats(res.data.stats);
+      setPagination(res.data.pagination);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to load pets');
+    } finally {
+      setLoading(false);
+    }
+  }, [page, debouncedSearch, petType, breed, sex, statusFilter]);
 
-      return matchesSearch && matchesType && matchesSex && matchesBreed && matchesMedicalStatus && matchesStatus;
-    });
-  }, [search, typeFilter, sexFilter, breedFilter, medicalStatusFilter, statusFilter]);
+  useEffect(() => { fetchPets(); }, [fetchPets]);
+  useEffect(() => { setPage(1); }, [debouncedSearch, petType, breed, sex, statusFilter]);
 
-  const stats = useMemo(() => {
-    const active = dummyPets.filter((p) => p.status === 'active');
-    return {
-      total: active.length,
-      dogs: active.filter((p) => p.type === 'Dog').length,
-      cats: active.filter((p) => p.type === 'Cat').length,
-      vaccineDue: active.filter((p) => p.vaccinationStatus === 'due_soon' || p.vaccinationStatus === 'overdue').length,
-      dewormDue: active.filter((p) => p.dewormingStatus === 'due_soon' || p.dewormingStatus === 'overdue').length,
-      antiRabiesDue: active.filter((p) => p.antiRabiesStatus === 'due_soon' || p.antiRabiesStatus === 'overdue').length,
-    };
-  }, []);
+  const archivePet = async (pet) => {
+    try {
+      await petService.archive(pet._id);
+      toast.success(`${pet.name} archived`);
+      fetchPets();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to archive pet');
+    }
+  };
 
-  const pets = filtered.slice((page - 1) * pageSize, page * pageSize).map((p) => ({ ...p, age: calculateAge(p.birthDate) }));
+  const resetFilters = () => {
+    setSearch(''); setPetType('All Types'); setBreed(''); setSex('All'); setStatusFilter('active');
+  };
 
   return {
-    pets, stats, loading, error,
-    search, setSearch,
-    typeFilter, setTypeFilter,
-    sexFilter, setSexFilter,
-    breedFilter, setBreedFilter,
-    medicalStatusFilter, setMedicalStatusFilter,
-    statusFilter, setStatusFilter,
-    page, setPage, pageSize,
-    total: filtered.length,
-    totalPages: Math.max(1, Math.ceil(filtered.length / pageSize)),
-    hasRecords: dummyPets.length > 0,
+    pets, stats, pagination, loading, error,
+    search, setSearch, petType, setPetType, breed, setBreed, sex, setSex,
+    statusFilter, setStatusFilter, page, setPage, archivePet, resetFilters, refetch: fetchPets,
   };
 };
