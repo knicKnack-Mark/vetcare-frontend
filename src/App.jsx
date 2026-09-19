@@ -24,6 +24,9 @@ import VaccinationOverduePage from './pages/vaccinations/VaccinationOverduePage'
 import DewormingsPage from './pages/dewormings/DewormingsPage';
 import DewormingCreatePage from './pages/dewormings/DewormingCreatePage';
 import DewormingProfilePage from './pages/dewormings/DewormingProfilePage';
+import InventoryPage from './pages/inventory/InventoryPage';
+import InventoryCreatePage from './pages/inventory/InventoryCreatePage';
+import InventoryProfilePage from './pages/inventory/InventoryProfilePage';
 
 import DashboardLayout from './layouts/DashboardLayout';
 
@@ -68,6 +71,9 @@ function AppRoutes() {
         <Route path="dewormings/create" element={<DewormingCreatePage />} />
         <Route path="dewormings/:id" element={<DewormingProfilePage />} />
 
+        <Route path="inventory" element={<InventoryPage />} />
+        <Route path="inventory/create" element={<InventoryCreatePage />} />
+        <Route path="inventory/:id" element={<InventoryProfilePage />} />
       </Route>
     </Routes>
   );
