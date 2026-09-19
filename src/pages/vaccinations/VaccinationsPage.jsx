@@ -17,7 +17,11 @@ const VaccinationsPage = () => {
         </div>
         <button className="btn btn-primary gap-2" onClick={() => navigate('/vaccinations/create')}><Plus size={16} /> Record Vaccination</button>
       </div>
-
+      <div className="tabs tabs-boxed w-fit">
+        <a className="tab tab-active" onClick={() => navigate('/vaccinations')}>All Records</a>
+        <a className="tab" onClick={() => navigate('/vaccinations/upcoming')}>Upcoming</a>
+        <a className="tab" onClick={() => navigate('/vaccinations/overdue')}>Overdue</a>
+      </div>
       <VaccinationStats summary={summary} />
 
       <div className="card bg-base-100 shadow-sm">

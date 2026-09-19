@@ -16,6 +16,7 @@ const VaccinationProfilePage = () => {
   return (
     <div className="space-y-6">
       <button className="btn btn-ghost btn-sm" onClick={() => navigate('/vaccinations')}>← Vaccinations</button>
+      <button className="btn btn-outline btn-sm" onClick={() => navigate(`/vaccinations/${id}/edit`)}>Edit Record</button>
       <h1 className="text-2xl font-bold">{v.vaccineName} — {v.pet?.name}</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
