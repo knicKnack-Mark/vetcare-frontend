@@ -27,6 +27,13 @@ import DewormingProfilePage from './pages/dewormings/DewormingProfilePage';
 import InventoryPage from './pages/inventory/InventoryPage';
 import InventoryCreatePage from './pages/inventory/InventoryCreatePage';
 import InventoryProfilePage from './pages/inventory/InventoryProfilePage';
+import InventoryEditPage from './pages/inventory/InventoryEditPage';
+import InventoryExpiringPage from './pages/inventory/InventoryExpiringPage';
+import InventoryExpiredPage from './pages/inventory/InventoryExpiredPage';
+import BillingPage from './pages/billing/BillingPage';
+import BillingCreatePage from './pages/billing/BillingCreatePage';
+import BillingProfilePage from './pages/billing/BillingProfilePage';
+import BillingEditPage from './pages/billing/BillingEditPage';
 
 import DashboardLayout from './layouts/DashboardLayout';
 
@@ -74,6 +81,16 @@ function AppRoutes() {
         <Route path="inventory" element={<InventoryPage />} />
         <Route path="inventory/create" element={<InventoryCreatePage />} />
         <Route path="inventory/:id" element={<InventoryProfilePage />} />
+
+        <Route path="inventory/:id/edit" element={<InventoryEditPage />} />
+        <Route path="inventory/expiring" element={<InventoryExpiringPage />} />
+        <Route path="inventory/expired" element={<InventoryExpiredPage />} />
+        
+        <Route path="billing" element={<BillingPage />} />
+        <Route path="billing/create" element={<BillingCreatePage />} />
+        <Route path="billing/:id" element={<BillingProfilePage />} />
+        <Route path="billing/:id/edit" element={<BillingEditPage />} />
+
       </Route>
     </Routes>
   );
